@@ -202,22 +202,22 @@ class Enemy(pygame.sprite.Sprite):
             self.move(0, self.dir * self.speed)
         elif self.type == 'LRUD':
             # bounce this object around the screen
-            if self.rect.x < 0:
+            if self.rect.x < 0: # left
                 self.dir = 1
-            if self.rect.right > screen.get_rect().width:
+            if self.rect.right > screen.get_rect().width: # right
                 self.dir = -1
-            if self.rect.y < 0:
+            if self.rect.y < 0: # up
                 self.dir = 2
-            if self.rect.bottom > screen.get_size()[1]:
+            if self.rect.bottom > screen.get_size()[1]: # down
                 self.dir = -2
             if self.dir == 1:
-                self.move(self.speed * dt, 0)
+                self.move(self.speed * dt, -self.speed * dt)
             elif self.dir == -1:
-                self.move(-self.speed * dt, 0)
+                self.move(-self.speed * dt, self.speed * dt)
             elif self.dir == 2:
-                self.move(0, self.speed * dt)
+                self.move(self.speed * dt, self.speed * dt)
             elif self.dir == -2:
-                self.move(0, -self.speed * dt)
+                self.move(-self.speed * dt, -self.speed * dt)
 
     def move(self, x, y):
         # use a pos variable to store the new position instead of using rect
