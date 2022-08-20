@@ -19,6 +19,7 @@ warnEnemies = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 allEnemies = pygame.sprite.Group()
 gametime = 0
+forceMoveTimer = 2000
 controls = "WASD"
 
 # reigon Classes
@@ -238,6 +239,9 @@ class ForceMove(pygame.sprite.Sprite):
         self.font = pygame.font.Font(None, 30)
     
     def update(self):
+        global forceMoveTimer
+        forceMoveTimer = self.forceMoveTimer
+        # print(forceMoveTimer)
         if self.forceMoveTimer <= 0:
             # stop the game
             lose()
@@ -306,6 +310,15 @@ class Button(pygame.sprite.Sprite):
     def runAction(self):
         global currentScreen
         if self.action == "start":
+            global gametime
+            gametime = 0
+            # reset forceMoveTimer
+            global forceMoveTimer
+            forceMoveTimer = 2000
+            # erase all enemies
+            allEnemies.empty()
+            enemies.empty()
+            warnEnemies.empty()            
             # start the game
             currentScreen = 'game'
         elif self.action == "controls":
@@ -432,8 +445,8 @@ while running:
         screen.blit(gameoverText, gameoverTextpos)
 
         # make a restart button in the middle of the screen
-        # restartButton = Button("Restart", screen.get_rect().width / 2 - 100, screen.get_rect().height / 2, 200, 50, (100, 100, 100), "game")
-        # restartButton.update()
+        restartButton = Button("Restart", screen.get_rect().width / 2 - 100, screen.get_rect().height / 2, 200, 50, (100, 100, 100), "start")
+        restartButton.update()
         # make a back button at the bottom of the screen that returns to the main screen
         backButton = Button("Back", screen.get_rect().width / 2 - 100, screen.get_rect().height - 50, 200, 50, (100, 100, 100), "main")
         backButton.update()
@@ -447,8 +460,8 @@ while running:
 
 
         # make a restart button in the middle of the screen
-        # restartButton = Button("Play Again", screen.get_rect().width / 2 - 100, screen.get_rect().height / 2, 200, 50, (100, 100, 100), "game")
-        # restartButton.update()
+        restartButton = Button("Play Again", screen.get_rect().width / 2 - 100, screen.get_rect().height / 2, 200, 50, (100, 100, 100), "start")
+        restartButton.update()
         # make a back button at the bottom of the screen that returns to the main screen
         backButton = Button("Back", screen.get_rect().width / 2 - 100, screen.get_rect().height - 50, 200, 50, (100, 100, 100), "main")
         backButton.update()
