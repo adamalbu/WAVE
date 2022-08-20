@@ -22,7 +22,7 @@ gametime = 0
 forceMoveTimer = 2000
 controls = "WASD"
 
-# reigon Classes
+# region Classes
 class Player(pygame.sprite.Sprite):
     def __init__(self, speed=0.5):
         pygame.sprite.Sprite.__init__(self)
@@ -39,13 +39,17 @@ class Player(pygame.sprite.Sprite):
         self.currentCursorLoc = pygame.mouse.get_pos()
         
     def update(self):
+        # global paused
         # blit
         screen.blit(self.image, self.rect)
         # control
-        self.control()
+        if not paused:
+            self.control()
         # enemy check
         self.enemyCheck()
         # debug last and current mouse position
+        # if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+            # paused = not paused
 
     def control(self):
         global isPlayerMoving
@@ -93,8 +97,8 @@ class Player(pygame.sprite.Sprite):
                 isPlayerMoving = True
             else:
                 isPlayerMoving = False
-            print(self.lastCursorLoc != self.currentCursorLoc)
             self.lastCursorLoc = self.currentCursorLoc
+        # pause if esc pressed
 
     def move(self, x, y):
         # move using pos
@@ -197,17 +201,23 @@ class Enemy(pygame.sprite.Sprite):
                 self.dir = -1
             self.move(0, self.dir * self.speed)
         elif self.type == 'LRUD':
-            # move left, right, up, or down
-            # bounce this object if touching edge
+            # bounce this object around the screen
             if self.rect.x < 0:
                 self.dir = 1
-            if self.rect.right > screen.get_size()[0]:
+            if self.rect.right > screen.get_rect().width:
                 self.dir = -1
             if self.rect.y < 0:
-                self.dir = 1
+                self.dir = 2
             if self.rect.bottom > screen.get_size()[1]:
-                self.dir = -1
-            self.move(self.dir * self.speed, self.dir * self.speed)
+                self.dir = -2
+            if self.dir == 1:
+                self.move(self.speed * dt, 0)
+            elif self.dir == -1:
+                self.move(-self.speed * dt, 0)
+            elif self.dir == 2:
+                self.move(0, self.speed * dt)
+            elif self.dir == -2:
+                self.move(0, -self.speed * dt)
 
     def move(self, x, y):
         # use a pos variable to store the new position instead of using rect
@@ -234,36 +244,34 @@ class Timer(pygame.sprite.Sprite):
 
 class ForceMove(pygame.sprite.Sprite):
     def __init__(self, startValue=2000):
+        global forceMoveTimer
         self.startValue = startValue
-        self.forceMoveTimer = self.startValue
         self.font = pygame.font.Font(None, 30)
     
     def update(self):
         global forceMoveTimer
-        forceMoveTimer = self.forceMoveTimer
-        # print(forceMoveTimer)
-        if self.forceMoveTimer <= 0:
+        if forceMoveTimer <= 0:
             # stop the game
             lose()
         else:
             if gametime > 2:
                 global isPlayerMoving
                 if isPlayerMoving:
-                    if self.forceMoveTimer >= self.startValue:
+                    if forceMoveTimer >= self.startValue:
                         # reset the timer
-                        self.forceMoveTimer = self.startValue
+                        forceMoveTimer = self.startValue
                     else:
                         if controls == "mouse":
-                            self.forceMoveTimer += 5 * dt
+                            forceMoveTimer += 5 * dt
                         else:
-                            self.forceMoveTimer += 2 * dt
+                            forceMoveTimer += 2 * dt
                 else:   
-                    self.forceMoveTimer -= 1 * dt
+                    forceMoveTimer -= 1 * dt
 
         self.display()
     # display text at bottom-left of screen
     def display(self):
-        text = self.font.render(str(self.forceMoveTimer), 1, (255, 0, 255))
+        text = self.font.render(str(forceMoveTimer), 1, (255, 0, 255))
         screen.blit(text, (0, screen.get_rect().height - text.get_rect().height))
 
 class Button(pygame.sprite.Sprite):
@@ -333,8 +341,6 @@ class Button(pygame.sprite.Sprite):
             pygame.time.wait(100)
         else:
             currentScreen = self.action
-
-
 # endregion
 
 def win():
@@ -395,6 +401,7 @@ forceMove = ForceMove()
 # game loop
 running = True
 currentScreen = 'main'
+paused = False
 while running:
     # event handling
     for event in pygame.event.get():
@@ -415,12 +422,13 @@ while running:
         for i in enemies.sprites():
             allEnemies.add(i)
 
-        # update everything
+            # update everything
         player.update()
-        warnEnemies.update()
-        enemies.update()
-        timer.update()
-        forceMove.update()
+        if not paused:
+            warnEnemies.update()
+            enemies.update()
+            timer.update()
+            forceMove.update()
     elif currentScreen == 'main':
         # a 200 wide and 50 high grey button
         startButton = Button("Start", screen.get_rect().width / 2 - 100, screen.get_rect().height / 2, 200, 50, (100, 100, 100), "start")
