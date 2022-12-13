@@ -410,7 +410,7 @@ while running:
     # draw
     screen.fill(background_color)
 
-    dt = clock.tick()
+    dt = clock.tick(1000)
 
     if currentScreen == 'game':
 
