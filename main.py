@@ -111,12 +111,16 @@ class Player(pygame.sprite.Sprite):
         # if they are, stop the player
         if self.rect.left < 0:
             self.rect.left = 0
+            self.pos[0] = self.rect.centerx
         if self.rect.right > screen.get_rect().right:
             self.rect.right = screen.get_rect().right
+            self.pos[0] = self.rect.centerx
         if self.rect.top < 0:
             self.rect.top = 0
+            self.pos[1] = self.rect.centery
         if self.rect.bottom > screen.get_rect().bottom:
             self.rect.bottom = screen.get_rect().bottom
+            self.pos[1] = self.rect.centery
     
     def enemyCheck(self):
         # check if the player is touching an enemy
