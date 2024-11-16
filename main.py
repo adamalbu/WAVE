@@ -1,4 +1,3 @@
-from distutils.log import warn
 import random
 import pygame
 import math
@@ -105,18 +104,12 @@ class Player(pygame.sprite.Sprite):
         self.pos[0] += x
         self.pos[1] += y
 
+        # clamp position within screen boundaries
+        self.pos[0] = max(self.rect.width / 2, min(self.pos[0], screen.get_width() - self.rect.width / 2))
+        self.pos[1] = max(self.rect.height / 2, min(self.pos[1], screen.get_height() - self.rect.height / 2))
+
         self.rect.centerx = self.pos[0]
         self.rect.centery = self.pos[1]
-        # check if the player is touching the screen borders
-        # if they are, stop the player
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > screen.get_rect().right:
-            self.rect.right = screen.get_rect().right
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > screen.get_rect().bottom:
-            self.rect.bottom = screen.get_rect().bottom
     
     def enemyCheck(self):
         # check if the player is touching an enemy
@@ -124,7 +117,6 @@ class Player(pygame.sprite.Sprite):
             if self.rect.colliderect(enemy.rect):
                 # stop the game
                 lose()
-
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, type, x=None, y=None):
         pygame.sprite.Sprite.__init__(self)
@@ -202,22 +194,22 @@ class Enemy(pygame.sprite.Sprite):
             self.move(0, self.dir * self.speed)
         elif self.type == 'LRUD':
             # bounce this object around the screen
-            if self.rect.x < 0:
+            if self.rect.x < 0: # left
                 self.dir = 1
-            if self.rect.right > screen.get_rect().width:
+            if self.rect.right > screen.get_rect().width: # right
                 self.dir = -1
-            if self.rect.y < 0:
+            if self.rect.y < 0: # up
                 self.dir = 2
-            if self.rect.bottom > screen.get_size()[1]:
+            if self.rect.bottom > screen.get_size()[1]: # down
                 self.dir = -2
             if self.dir == 1:
-                self.move(self.speed * dt, 0)
+                self.move(self.speed * dt, -self.speed * dt)
             elif self.dir == -1:
-                self.move(-self.speed * dt, 0)
+                self.move(-self.speed * dt, self.speed * dt)
             elif self.dir == 2:
-                self.move(0, self.speed * dt)
+                self.move(self.speed * dt, self.speed * dt)
             elif self.dir == -2:
-                self.move(0, -self.speed * dt)
+                self.move(-self.speed * dt, -self.speed * dt)
 
     def move(self, x, y):
         # use a pos variable to store the new position instead of using rect
@@ -410,7 +402,7 @@ while running:
     # draw
     screen.fill(background_color)
 
-    dt = clock.tick()
+    dt = clock.tick(1000)
 
     if currentScreen == 'game':
 
