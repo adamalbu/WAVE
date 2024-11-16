@@ -20,6 +20,7 @@ allEnemies = pygame.sprite.Group()
 gametime = 0
 forceMoveTimer = 2000
 controls = "WASD"
+isPlayerMoving = False
 
 # region Classes
 class Player(pygame.sprite.Sprite):
@@ -33,6 +34,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.centery = screen.get_rect().centery
         self.speed = speed
         self.pos = [self.rect.centerx, self.rect.centery]
+        self.prev_pos = self.pos.copy()
 
         self.lastCursorLoc = pygame.mouse.get_pos()
         self.currentCursorLoc = pygame.mouse.get_pos()
@@ -64,11 +66,6 @@ class Player(pygame.sprite.Sprite):
                     self.move(0, -self.speed)
                 if keys[pygame.K_DOWN]:
                     self.move(0, self.speed)
-                # check if any arrow is pressed
-                if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[pygame.K_DOWN]:
-                    isPlayerMoving = True
-                else:
-                    isPlayerMoving = False
             # move the player using w a s d
             if controls == "WASD":
                 keys = pygame.key.get_pressed()
@@ -80,11 +77,6 @@ class Player(pygame.sprite.Sprite):
                     self.move(0, -self.speed)
                 if keys[pygame.K_s]:
                     self.move(0, self.speed)
-                # check if any key is pressed
-                if keys[pygame.K_a] or keys[pygame.K_d] or keys[pygame.K_w] or keys[pygame.K_s]:
-                    isPlayerMoving = True
-                else:
-                    isPlayerMoving = False
         else:
             self.currentCursorLoc = pygame.mouse.get_pos()
             # move the player using mouse
@@ -100,16 +92,32 @@ class Player(pygame.sprite.Sprite):
         # pause if esc pressed
 
     def move(self, x, y):
+        global isPlayerMoving
         # move using pos
         self.pos[0] += x
         self.pos[1] += y
 
         # clamp position within screen boundaries
-        self.pos[0] = max(self.rect.width / 2, min(self.pos[0], screen.get_width() - self.rect.width / 2))
-        self.pos[1] = max(self.rect.height / 2, min(self.pos[1], screen.get_height() - self.rect.height / 2))
+        clamped_x = max(self.rect.width / 2, min(self.pos[0], screen.get_width() - self.rect.width / 2))
+        clamped_y = max(self.rect.height / 2, min(self.pos[1], screen.get_height() - self.rect.height / 2))
+
+        # if self.pos[0] == clamped_x and self.pos[1] == clamped_y:
+        #     isPlayerMoving = False
+        # else:
+        #     isPlayerMoving = True
+
+        self.pos[0] = clamped_x
+        self.pos[1] = clamped_y
 
         self.rect.centerx = self.pos[0]
         self.rect.centery = self.pos[1]
+
+        if self.pos != self.prev_pos:
+            isPlayerMoving = True
+        else:
+            isPlayerMoving = False
+
+        self.prev_pos = self.pos.copy()
     
     def enemyCheck(self):
         # check if the player is touching an enemy
@@ -261,6 +269,8 @@ class ForceMove(pygame.sprite.Sprite):
                     forceMoveTimer -= 1 * dt
 
         self.display()
+        print(f"forceMoveTimer: {forceMoveTimer}")  # P87ec
+
     # display text at bottom-left of screen
     def display(self):
         text = self.font.render(str(forceMoveTimer), 1, (255, 0, 255))
