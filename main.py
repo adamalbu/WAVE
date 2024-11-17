@@ -95,7 +95,7 @@ while running:
     # draw
     screen.fill(background_color)
 
-    shared_vars.dt = clock.tick(800)
+    shared_vars.dt = clock.tick(600)
 
     if shared_vars.currentScreen == 'game':
 
