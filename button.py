@@ -57,8 +57,6 @@ class Button(pygame.sprite.Sprite):
             if SharedVariables().controls == "WASD":
                 SharedVariables().controls = "arrows"
             elif SharedVariables().controls == "arrows":
-                SharedVariables().controls = "mouse"
-            elif SharedVariables().controls == "mouse":
                 SharedVariables().controls = "WASD"
             # pause for 0.1 seconds
             pygame.time.wait(100)
