@@ -1,5 +1,6 @@
 import pygame
 from shared_variables import SharedVariables
+import math
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, lose_callback, speed=0.5):
@@ -34,37 +35,35 @@ class Player(pygame.sprite.Sprite):
     def control(self):
         if SharedVariables().controls == "WASD" or SharedVariables().controls == "arrows":
             # move the player using keys
+            keys = pygame.key.get_pressed()
+            horizontal_movement = 0
+            vertical_movement = 0
             if SharedVariables().controls == "arrows":
-                keys = pygame.key.get_pressed()
                 if keys[pygame.K_LEFT]:
-                    self.move(-self.speed, 0)
+                    horizontal_movement = -self.speed
                 if keys[pygame.K_RIGHT]:
-                    self.move(self.speed, 0)
+                    horizontal_movement = self.speed
                 if keys[pygame.K_UP]:
-                    self.move(0, -self.speed)
+                    vertical_movement = -self.speed
                 if keys[pygame.K_DOWN]:
-                    self.move(0, self.speed)
-                # check if any arrow is pressed
-                if keys[pygame.K_LEFT] or keys[pygame.K_RIGHT] or keys[pygame.K_UP] or keys[pygame.K_DOWN]:
-                    SharedVariables().isPlayerMoving = True
-                else:
-                    SharedVariables().isPlayerMoving = False
-            # move the player using w a s d
+                    vertical_movement = self.speed
             if SharedVariables().controls == "WASD":
-                keys = pygame.key.get_pressed()
                 if keys[pygame.K_a]:
-                    self.move(-self.speed, 0)
+                    horizontal_movement = -self.speed
                 if keys[pygame.K_d]:
-                    self.move(self.speed, 0)
+                    horizontal_movement = self.speed
                 if keys[pygame.K_w]:
-                    self.move(0, -self.speed)
+                    vertical_movement = -self.speed
                 if keys[pygame.K_s]:
-                    self.move(0, self.speed)
-                # check if any key is pressed
-                if keys[pygame.K_a] or keys[pygame.K_d] or keys[pygame.K_w] or keys[pygame.K_s]:
-                    SharedVariables().isPlayerMoving = True
-                else:
-                    SharedVariables().isPlayerMoving = False
+                    vertical_movement = self.speed
+            if horizontal_movement != 0 and vertical_movement != 0:
+                horizontal_movement *= 1 / math.sqrt(2)
+                vertical_movement *= 1 / math.sqrt(2)
+            self.move(horizontal_movement, vertical_movement)
+            if horizontal_movement != 0 or vertical_movement != 0:
+                SharedVariables().isPlayerMoving = True
+            else:
+                SharedVariables().isPlayerMoving = False
         else:
             self.currentCursorLoc = pygame.mouse.get_pos()
             # move the player using mouse
