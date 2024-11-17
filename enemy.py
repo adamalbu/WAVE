@@ -20,7 +20,7 @@ class Enemy(pygame.sprite.Sprite):
         
         self.updateRect()
         if self.rect.colliderect(self.player_dependency.rect):
-            self.__init__(self.type)
+            self.__init__(self.type, self.player_dependency)
         self.speed = 0.5
         if random.randint(0, 1) == 0:
             self.dir = 1
